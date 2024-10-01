@@ -24,14 +24,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $adresse = $input['adressUser'];
     $dob = $input['dobUser'];
 
-    try {
-        // Préparer la requête SQL avec des paramètres positionnels
-        $sql = "INSERT INTO user (nomUser, firstNameUser, emailUser, adressUser, passwordUser, dobUser) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$nom, $prenom, $email, $adresse, $motdepasse, $dob]);
 
-        echo "Inscription réussie";
+    try {
+        // Vérifier si l'email existe déjà dans la base de données
+        $checkEmailQuery = "SELECT COUNT(*) FROM user WHERE emailUser = ?";
+        $stmt = $pdo->prepare($checkEmailQuery);
+        $stmt->execute([$email]);
+        $emailExists = $stmt->fetchColumn();
+
+        if ($emailExists > 0) {
+            echo json_encode(["message" => "Cet email est déjà enregistré."]);
+        } else {
+            // Si l'email n'existe pas, insérer l'utilisateur
+            $sql = "INSERT INTO user (nomUser, firstNameUser, emailUser, adressUser, passwordUser, dobUser) VALUES (?, ?, ?, ?, ?, ?)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$nom, $prenom, $email, $adresse, $motdepasse, $dob]);
+
+            echo json_encode(["message" => "Inscription réussie"]);
+        }
     } catch (PDOException $e) {
-        echo "Erreur: " . $e->getMessage();
+        echo json_encode(["error" => "Erreur: " . $e->getMessage()]);
     }
 }
