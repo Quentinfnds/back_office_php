@@ -20,8 +20,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Récupérer les données envoyées depuis le front-end
     $email = $input['emailUser'];
     $motdepasse = $input['passwordUser'];
-    echo ($email);
-    echo ($motdepasse);
 
     try {
         // Préparer la requête SQL pour récupérer l'utilisateur avec l'email donné
